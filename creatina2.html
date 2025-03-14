@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creatina Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f2f2f2;
+            color: #333;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-image: linear-gradient(to bottom right, #1a1a1a, #333);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .today {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .todayitem h2 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            background-color: #ff8080;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .dayscontainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .day {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .day:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .day h2 {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            margin-bottom: 8px;
+        }
+        
+        .day p {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .day p::before {
+            content: "💪";
+            margin-right: 5px;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 600px) {
+            .dayscontainer {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Creatina Tracker</h1>
+    <div class="today" id="today"></div>
+    <div class="dayscontainer" id="dayscontainer"></div>
+    
+    <script>
+        const dayscontainer = document.getElementById('dayscontainer');
+        const todaycontainer = document.getElementById('today');
+        let days = [
+            { date: "14/3/2025", creatina: 1 },
+        ];
+
+        // Opção de registrar o dia atual
+        const today = new Date();
+        const todayString = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+
+        // Função para renderizar os dias registrados
+        function renderDays() {
+            dayscontainer.innerHTML = '';
+            days.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.innerHTML = `<h2>${day.date}</h2> <p>Creatina tomada</p> `;
+                dayElement.classList.add('day');
+                dayscontainer.appendChild(dayElement);
+            });
+        }
+
+        // Adicionar registro de dias anteriores e criar o botão para o dia atual
+        document.addEventListener('DOMContentLoaded', () => {
+            days = carregarcookies();
+            renderDays();
+
+            // Criar elemento do dia atual
+            const todayElement = document.createElement('div');
+            todayElement.innerHTML = `<h2>${todayString}</h2> <button onclick="registerCreatina()">Registrar Creatina</button> `;
+            todayElement.classList.add('todayitem');
+            todaycontainer.appendChild(todayElement);
+        });
+
+        // Registrar creatina
+        function registerCreatina() {
+            if (days.some(day => day.date === todayString)) {
+                alert('Você já registrou a creatina hoje!');
+                return;
+            }
+            const newDay = { date: todayString, creatina: 1 };
+            days.push(newDay);
+            salvarnoscookies();
+            alert('Creatina registrada com sucesso!');
+
+            // Atualiza o DOM adicionando o novo registro
+            const dayElement = document.createElement('div');
+            dayElement.innerHTML = `<h2>${newDay.date}</h2> <p>Creatina tomada</p> `;
+            dayElement.classList.add('day');
+            dayscontainer.appendChild(dayElement);
+        }
+
+        // Salvar nos cookies com expiração de 7 dias
+        function salvarnoscookies() {
+            const daysJSON = JSON.stringify(days);
+            const expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + 7);
+            document.cookie = `days=${daysJSON}; expires=${expireDate.toUTCString()}; path=/;`;
+        }
+
+        // Carregar cookies
+        function carregarcookies() {
+            const cookies = document.cookie.split('; ');
+            const daysCookie = cookies.find(cookie => cookie.startsWith('days='));
+            if (daysCookie) {
+                const daysJSON = daysCookie.split('=')[1];
+                return JSON.parse(daysJSON);
+            }
+            return [];
+        }
+    </script>
+</body>
+</html>
